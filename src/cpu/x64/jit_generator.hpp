@@ -17,6 +17,7 @@
 #ifndef CPU_X64_JIT_GENERATOR_HPP
 #define CPU_X64_JIT_GENERATOR_HPP
 
+#include <algorithm>
 #include <limits.h>
 #include <vector>
 
@@ -227,9 +228,9 @@ public:
                     init_vmm(Xbyak::Zmm(i), abi_not_param1, NAN);
                 }
             } else if (is_valid_isa(avx)) {
-                for (int i = 0; i < 16; i++) {
+                std::fill_n(init_vmm_ptr, 16, [abi_not_param1](auto i) mutable {
                     init_vmm(Xbyak::Ymm(i), abi_not_param1, NAN);
-                }
+                });
             } else {
                 for (int i = 0; i < 16; i++) {
                     init_vmm(Xbyak::Xmm(i), abi_not_param1, NAN);
@@ -646,9 +647,7 @@ public:
             const Xbyak::Xmm &x1, const Xbyak::Operand &op, Xbyak::uint8 imm) {
         if (is_valid_isa(avx))
             vpshufd(x1, op, imm);
-        else {
-            pshufd(x1, op, imm);
-        }
+        else { pshufd(x1, op, imm); }
     }
 
     void uni_vrcpss(const Xbyak::Xmm &x, const Xbyak::Operand &op) {
