@@ -14,6 +14,7 @@
 * limitations under the License.
 *******************************************************************************/
 
+#include <algorithm>
 #include "cpu/x64/cpu_isa_traits.hpp"
 #include "cpu/x64/jit_generator.hpp"
 
@@ -523,8 +524,7 @@ jit_avx512_core_gemm_s8u8s32_kern::jit_avx512_core_gemm_s8u8s32_kern(
     , coffset_rx_(0)
     , coffset_ry_(0) {
 
-    for (int i = 0; i < (max_unroll_m_ >> 4); i++)
-        a_regs_[i] = Zmm(i);
+    std::fill_n(a_regs_, max_unroll_m_ >> 4, Zmm(0));
     b_regs_[0] = zmm4;
     b_regs_[1] = zmm5;
 

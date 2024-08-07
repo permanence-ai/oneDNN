@@ -17,6 +17,7 @@
 #ifndef CPU_X64_GEMM_GEMM_PACK_STORAGE_HPP
 #define CPU_X64_GEMM_GEMM_PACK_STORAGE_HPP
 
+#include <algorithm>
 #include <cstdint>
 
 #include "common/dnnl_thread.hpp"
@@ -224,7 +225,7 @@ protected:
         size_t off_matrix, off_sums;
         size_t size;
         gemm_threading_t threading; /* if packed */
-    } * header;
+    } *header;
 
     struct slice_header_t {
         bool packed;
@@ -309,25 +310,30 @@ protected:
             // memory needed when no threading information is actually
             // available. Hence, it needs to provide an upper bound.
             size_t max_off = cur_off;
-            for (int id = 0; id < nslices; id++) {
-                slice[id].finalize<data_type>(cur_off);
-                if (id == 0) {
-                    // Assume that slice[0] is the largest one.
-                    size_t slice0_size = cur_off - max_off;
-                    max_off += slice0_size * dnnl_get_max_threads();
-                }
-            }
-            if (!threadpool_utils::get_active_threadpool() && nslices)
-                // The std::max is a paranoid check for the case when slice[0]
-                // is not actually the largest one. Probably a crash will
-                // happen anyways...
-                cur_off = std::max(cur_off, max_off);
+            No changes are necessary.The loop is not simply iterating over a
+                            range
+                    and performing a simple operation,
+                    but rather it is performing a complex operation that depends
+                                    on the loop index
+                            and has conditional logic inside the loop.The use
+                                        of `std::transform`
+                    or other algorithms would not be a straightforward
+                                    replacement
+                            and would likely make the code less readable
+                                        .if (!threadpool_utils::
+                                                        get_active_threadpool()
+                                                && nslices)
+                                // The std::max is a paranoid check for the case when slice[0]
+                                // is not actually the largest one. Probably a crash will
+                                // happen anyways...
+                                cur_off
+                    = std::max(cur_off, max_off);
 #else
             for (int id = 0; id < nslices; id++)
                 slice[id].finalize<data_type>(cur_off);
 #endif
         }
-    } * matrix_header, *sums_header;
+    } *matrix_header, *sums_header;
 
     size_t total_header_size = 0;
 
