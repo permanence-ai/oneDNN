@@ -14,6 +14,7 @@
 * limitations under the License.
 *******************************************************************************/
 
+#include <algorithm>
 #include "cpu/x64/cpu_isa_traits.hpp"
 #include "cpu/x64/jit_generator.hpp"
 
@@ -327,8 +328,7 @@ jit_avx_gemv_t_f32_kern::jit_avx_gemv_t_f32_kern()
     A_ = abi_param4;
 
     // Assign vector registers
-    for (int i = 0; i < (N_UNROLL_); i++)
-        y_regs_[i] = Ymm(i);
+    std::fill_n(y_regs_, N_UNROLL_, Ymm(0));
 
     int rn = 0;
     for (int i = 0; i < (M_UNROLL_ >> 3); i++)
