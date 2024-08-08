@@ -14,6 +14,7 @@
 * limitations under the License.
 *******************************************************************************/
 
+#include <algorithm>
 #include "cpu/x64/jit_generator.hpp"
 
 #include "cpu/x64/gemm/amx/jit_avx512_core_amx_copy_kern.hpp"
@@ -199,8 +200,7 @@ void jit_avx512_core_amx_copy_kern::kernel_AT(
     } else {
         v[0] = tmp1_;
         v[1] = tmp2_;
-        for (int i = 2; i < 16; i++)
-            v[i] = src_[i - 2];
+        std::copy_n(src_ + 2, 14, v + 2);
 
         for (int i = 0; i < 16; i += 2)
             amxtrans16(v[0], v[1], src_[i], src_[i + 1]);
@@ -548,8 +548,7 @@ jit_avx512_core_amx_copy_kern::jit_avx512_core_amx_copy_kern(
     tmp1_ = is_int8_trans ? ymm16 : zmm16;
     tmp2_ = is_int8_trans ? ymm17 : zmm17;
 
-    for (int i = 0; i < 16; i++)
-        src_[i] = is_int8_trans ? Ymm(i) : Zmm(i);
+    std::fill_n(src_, 16, is_int8_trans ? Ymm(0) : Zmm(0));
 
     for (int k = 0; k < nstages_; k++)
         for (int i = 0; i < 2; i++)
