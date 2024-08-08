@@ -18,6 +18,7 @@
 #ifndef CPU_AARCH64_JIT_SVE_CONV_KERNEL_HPP
 #define CPU_AARCH64_JIT_SVE_CONV_KERNEL_HPP
 
+#include <memory>
 #include "common/c_types_map.hpp"
 #include "common/memory_tracking.hpp"
 
@@ -49,10 +50,11 @@ struct jit_sve_conv_fwd_kernel : public jit_generator {
 
         if (jcp.with_eltwise)
             eltwise_injector_
-                    = new jit_uni_eltwise_injector_f32<isa>(this, jcp.eltwise);
+                    = utils::make_unique<jit_uni_eltwise_injector_f32<isa>>(
+                            this, jcp.eltwise);
     }
 
-    ~jit_sve_conv_fwd_kernel() { delete eltwise_injector_; }
+    ~jit_sve_conv_fwd_kernel() {}
 
     DECLARE_CPU_JIT_AUX_FUNCTIONS(jit_sve_conv_fwd_kernel)
 
@@ -162,7 +164,7 @@ private:
         }
     }
 
-    jit_uni_eltwise_injector_f32<isa> *eltwise_injector_;
+    std::unique_ptr<jit_uni_eltwise_injector_f32<isa>> eltwise_injector_;
 
     inline void prepare_output(int ur_w);
     inline void store_output(int ur_w);
