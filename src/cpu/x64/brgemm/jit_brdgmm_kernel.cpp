@@ -842,8 +842,8 @@ void jit_brdgmm_kernel_base_t<Wmm>::pad_comp_kernel(
     jmp(ptr[reg_table_base], T_NEAR);
     align(8);
     L(jmp_table_base);
-    for (int m_i = 0; m_i <= max_m_unroll; ++m_i) {
-        putL(jmp_table_labels[m_i]);
+    for (auto label : jmp_table_labels) {
+        putL(label);
     }
 
     for (int pad_i = max_m_unroll; pad_i > 0; --pad_i) {
@@ -1007,8 +1007,8 @@ void jit_brdgmm_kernel_base_t<Wmm>::brdgmm_microkernel(int m_blocks,
 
             align(64);
             L(jmp_table_base);
-            for (int m_i = 0; m_i < m_blocks; ++m_i) {
-                putL(jmp_table_labels[m_i]);
+            for (auto label : jmp_table_labels) {
+                putL(label);
             }
         }
 
