@@ -502,18 +502,17 @@ jit_avx512_core_gemm_bf16bf16f32_kern::jit_avx512_core_gemm_bf16bf16f32_kern(
     zmm_tmp0_ = zmm6;
     zmm_tmp1_ = zmm3;
 
-    bf16_emu_ = nullptr;
-    if (!bfloat16_ && use_zmm)
-        bf16_emu_ = new bf16_emulation_t(
-                this, one_, even_, selector_, scratch_, zmm_tmp0_, zmm_tmp1_);
+    bf16_emu_ = bfloat16_ && use_zmm
+            ? utils::make_unique<bf16_emulation_t>(this, one_, even_, selector_,
+                      scratch_, zmm_tmp0_, zmm_tmp1_)
+            : nullptr;
 }
 
-jit_avx512_core_gemm_bf16bf16f32_kern::
-        ~jit_avx512_core_gemm_bf16bf16f32_kern() {
-    delete bf16_emu_;
-}
+jit_avx512_core_gemm_bf16bf16f32_kern::~jit_avx512_core_gemm_bf16bf16f32_kern()
+        = default;
 
 } // namespace x64
+
 } // namespace cpu
 } // namespace impl
 } // namespace dnnl
