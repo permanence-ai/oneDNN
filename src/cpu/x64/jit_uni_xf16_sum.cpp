@@ -13,6 +13,7 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 *******************************************************************************/
+#include <algorithm>
 #include <float.h>
 
 #include "common/dnnl_thread.hpp"
@@ -466,9 +467,8 @@ status_t jit_xf16_sum_t<src_data_type, dst_data_type, isa>::execute(
 
         if (tail != 0 && ithr == nthr - 1) {
             dim_t start_e = nelems - tail;
-            for (int a = 0; a < num_arrs; ++a) {
-                local_input_ptrs[a] = &input_ptrs[a][start_e];
-            }
+            std::copy(input_ptrs + start_e, input_ptrs + start_e + num_arrs,
+                    local_input_ptrs);
             local_output = &output[start_e];
             arg.srcs = (const void **)local_input_ptrs;
             arg.dst = (const void *)local_output;

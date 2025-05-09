@@ -14,6 +14,7 @@
 * limitations under the License.
 *******************************************************************************/
 
+#include <algorithm>
 #include "cpu/x64/cpu_isa_traits.hpp"
 #include "cpu/x64/jit_generator.hpp"
 
@@ -496,8 +497,7 @@ jit_avx2_gemm_s8u8s32_kern::jit_avx2_gemm_s8u8s32_kern(bool beta_zero,
     dp_scratch_ = ymm6;
     ones_ = ymm7;
 
-    for (int i = 0; i < (unroll_m_ >> 3); i++)
-        a_regs_[i] = Ymm(i);
+    std::fill_n(a_regs_, (unroll_m_ >> 3), Ymm(0));
     b_regs_[0] = ymm3;
     b_regs_[1] = ymm4;
 
