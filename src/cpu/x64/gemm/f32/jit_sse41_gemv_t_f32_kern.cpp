@@ -15,6 +15,7 @@
 *******************************************************************************/
 
 #include "cpu/x64/gemm/f32/jit_sse41_gemv_t_f32_kern.hpp"
+#include <algorithm>
 
 #ifdef _WIN32
 static const bool is_windows = true;
@@ -297,8 +298,7 @@ jit_sse41_gemv_t_f32_kern::jit_sse41_gemv_t_f32_kern()
     A_ = abi_param4;
 
     // Assign vector registers
-    for (int i = 0; i < (N_UNROLL_); i++)
-        y_regs_[i] = Xmm(i);
+    std::fill_n(y_regs_, N_UNROLL_, Xmm(0));
 
     int rn = 0;
     for (int i = 0; i < (M_UNROLL_ >> 2); i++)
