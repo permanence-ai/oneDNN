@@ -815,6 +815,7 @@ template struct jit_uni_softmax_fwd_t<sve_128>;
 template struct jit_uni_softmax_bwd_t<sve_128>;
 
 } // namespace aarch64
+
 } // namespace cpu
 } // namespace impl
 } // namespace dnnl
